@@ -9,9 +9,10 @@ app.post('/user/:id', passport.authenticate('jwt'), async (req, res) => {
   const { id } = req.params
 
   try {
-      const user = await User.update(req.body, {
+       await User.update(req.body.urlPicture, {
           where: {
-              id,
+            id,
+
           },
       })
       const response = await User.findOne({
