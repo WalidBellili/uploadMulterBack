@@ -2,14 +2,16 @@ const express = require('express')
 const { upload, directory } = require('../config/multer')
 const app = express()
 const { User } = require("../models/index");
-const passport = require('../config/passport')
+const passport = require('../config/passport');
+const multer = require('multer');
 
 
-app.post('/user/:id', passport.authenticate('jwt'), async (req, res) => {
+app.post('/user/:id', upload.single('photo'), async (req, res) => {
   const { id } = req.params
+  console.log(req.file);
 
   try {
-       await User.update(req.body.urlPicture, {
+       await User.update({urlPicture : `http://localhost:5000/${directory}/${req.file.filename}`}, {
           where: {
             id,
 
