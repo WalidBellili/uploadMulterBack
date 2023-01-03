@@ -1,6 +1,7 @@
 const express = require("express");
 const app = express();
 const bcrypt = require("bcrypt");
+const { upload, directory } = require('../config/multer')
 const { User } = require("../models/index");
 const issueToken = require("../utils/jwt");
 // const { validationResult } = require('express-validator')
@@ -33,14 +34,18 @@ app.post("/login", async (req, res) => {
   }
 });
 
-app.post("/signup", async (req, res) => {
+app.post("/signup",upload.single('photo'), async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, firstname, lastname, pseudo, urlPicture } = req.body;
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
       email,
+      firstname, 
+      lastname, 
+      pseudo,
+      urlPicture,
       password: hashedPassword,
     });
     res.json(user);

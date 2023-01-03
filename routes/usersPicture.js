@@ -1,33 +1,56 @@
 const express = require('express')
 const { upload, directory } = require('../config/multer')
 const app = express()
+const { User } = require("../models/index");
 const passport = require('../config/passport')
 
 
-app.get('/me', passport.authenticate('jwt'), (req, res) => {
-  res.json(req.user)
+app.post('/user/:id', passport.authenticate('jwt'), async (req, res) => {
+  const { id } = req.params
+
+  try {
+      const user = await User.update(req.body, {
+          where: {
+              id,
+          },
+      })
+      const response = await User.findOne({
+          where: {
+              id,
+          },
+      })
+
+      res.json(response)
+  } catch (e) {
+      console.log(e)
+      res.status(500).json('Internal server error')
+  }
 })
 
-app.post('/', upload.single('photo'), async (req, res) => {
-  // try {
-  //   const photo = await Photo.create({
-  //     url: `http://localhost:5000/${directory}${req.file.filename}`
-  //   })
+app.get('/user/:id', upload.single('photo'), async (req, res) => {
+  const { id } = req.params
+  try {
 
-  //   res.json(photo)
-  // } catch (e) {
-  //   res.json(e)
-  // }
+  const response = await User.findOne({
+      where: {
+          id,
+      },
+  })
+
+  res.json(response)
+  } catch (e) {
+    res.json(e)
+  }
 })
 
 app.get('/', async (req, res) => {
-  // try {
-  //   const photos = await Photo.findAll()
+  try {
+    const user = await User.findAll()
 
-  //   res.json(photos)
-  // } catch (e) {
-  //   res.json(e)
-  // }
+    res.json(photos)
+  } catch (e) {
+    res.json(e)
+  }
 })
 
 module.exports = app
