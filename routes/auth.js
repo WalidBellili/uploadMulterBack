@@ -1,52 +1,52 @@
-const express = require('express')
-const app = express()
-const bcrypt = require('bcrypt')
-const { User } = require('../models/index')
-const issueToken = require('../utils/jwt')
+const express = require("express");
+const app = express();
+const bcrypt = require("bcrypt");
+const { User } = require("../models/index");
+const issueToken = require("../utils/jwt");
+// const { validationResult } = require('express-validator')
 
-
-app.post('/login', async (req, res) => {
-
-    const { email, password, pseudo } = req.body
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
     const user = await User.findOne({
-        where: {
-            email,
-        },
-    })
-        if (!user) {
-            res.status(404).json('Not Found')
-        } else {
-            const validPassword = await bcrypt.compare(password, user.password)
-            if (validPassword) {
-                const token = issueToken({
-                    id: user.id,
-                    email: user.email,
-                })
-                res.json({ token })
-            } else {
-                res.status(404).json('Not Found')
-            }
-}
-})
+      where: {
+        email,
+      },
+    });
+    if (!user) {
+      res.status(404).json("Not Found1");
+    } else {
+      const validPassword = await bcrypt.compare(password, user.password);
+      if (validPassword) {
+        const token = issueToken({
+          id: user.id,
+          email: user.email,
+        });
+        res.json({ token });
+      } else {
+        res.status(404).json("Not Found2");
+      }
+    }
+  } catch (e) {
+    console.log(e);
+  }
+});
 
-app.post('/signup', async (req, res) => {
-    const { errors } = validationResult(req)    
-    const { email, password, pseudo } = req.body
+app.post("/signup", async (req, res) => {
+  try {
+    const { email, password } = req.body;
 
-    if(errors.length > 0) {
-        res.status(400).json(errors)
-    }else{
-    
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-        email,
-        password: hashedPassword,
-        pseudo,
-    })
-    res.json(user)
-}
-})
+      email,
+      password: hashedPassword,
+    });
+    res.json(user);
+  } catch (e) {
+    console.log(e);
+  }
+});
 
-module.exports = app
+module.exports = app;
